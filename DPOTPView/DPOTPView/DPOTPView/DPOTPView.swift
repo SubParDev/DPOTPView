@@ -9,6 +9,7 @@
 import UIKit
 
 public protocol DPOTPViewDelegate {
+    func dpOTPViewWillAddText(_ text: String, at position:Int)
     func dpOTPViewAddText(_ text:String , at position:Int)
     func dpOTPViewRemoveText(_ text:String , at position:Int)
     func dpOTPViewChangePositionAt(_ position:Int)
@@ -294,6 +295,7 @@ extension DPOTPView : UITextFieldDelegate , OTPBackTextFieldDelegate {
     }
     
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        dpOTPViewDelegate?.dpOTPViewWillAddText(text ?? "", at: textField.tag/1000 - 1)
         if string.trimmingCharacters(in: CharacterSet.whitespaces).count != 0 {
             textField.text = string
             if textField.tag < count*1000 {
