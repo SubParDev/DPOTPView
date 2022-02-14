@@ -123,7 +123,7 @@ public protocol DPOTPViewDelegate {
             arrTextFields.forEach { $0.text = nil }
             for i in 0 ..< arrTextFields.count {
                 if i < (newValue?.count ?? 0) {
-                    if let txt = newValue?[i..<i+1] , let code = Int(txt) {
+                    if let txt = newValue?[i..<i] , let code = Int(txt) {
                         arrTextFields[i].text = String(code)
                     }
                 }
@@ -297,7 +297,7 @@ extension DPOTPView : UITextFieldDelegate , OTPBackTextFieldDelegate {
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if string.trimmingCharacters(in: CharacterSet.whitespaces).count != 0 {
             print(string)
-            dpOTPViewDelegate?.dpOTPViewWillAddText(string ?? "", at: textField.tag/1000 - 1)
+            dpOTPViewDelegate?.dpOTPViewWillAddText(string, at: textField.tag/1000 - 1)
             textField.text = string
             if textField.tag < count*1000 {
                 let next = textField.superview?.viewWithTag((textField.tag/1000 + 1)*1000)
