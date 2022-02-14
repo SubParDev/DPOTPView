@@ -289,7 +289,11 @@ public protocol DPOTPViewDelegate {
     
     open func setBackgroundFilledColorForTextFields(colour: UIColor) {
         arrTextFields.forEach{ (textField) in
-            textField.backgroundColor = colour
+            if textField.text != "" {
+                textField.backgroundColor = colour
+            } else {
+                textField.backgroundColor = backGroundColorTextField
+            }
         }
     }
 }
@@ -302,7 +306,6 @@ extension DPOTPView : UITextFieldDelegate , OTPBackTextFieldDelegate {
     
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if string.trimmingCharacters(in: CharacterSet.whitespaces).count != 0 {
-            print(string)
             dpOTPViewDelegate?.dpOTPViewWillAddText(string, at: textField.tag/1000 - 1)
             textField.text = string
             if textField.tag < count*1000 {
@@ -313,6 +316,7 @@ extension DPOTPView : UITextFieldDelegate , OTPBackTextFieldDelegate {
             }
         } else if string.count == 0 { // is backspace
             textField.text = ""
+            dpOTPViewDelegate?.dpOTPViewRemoveText(string ?? "", at: textField.tag/1000-1)
         }
         dpOTPViewDelegate?.dpOTPViewAddText(text ?? "", at: textField.tag/1000 - 1)
         return false
