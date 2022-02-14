@@ -121,9 +121,9 @@ public protocol DPOTPViewDelegate {
             return str
         } set {
             arrTextFields.forEach { $0.text = nil }
-            for i in 1 ..< arrTextFields.count {
+            for i in 0 ..< arrTextFields.count {
                 if i < (newValue?.count ?? 0) {
-                    if let txt = newValue?[i..<i] , let code = Int(txt) {
+                    if let txt = newValue?[i..<i+1] , let code = Int(txt) {
                         arrTextFields[i].text = String(code)
                     }
                 }
@@ -285,6 +285,12 @@ public protocol DPOTPViewDelegate {
             }
         }
         return isValid
+    }
+    
+    open func setBackgroundFilledColorForTextFields(colour: UIColor) {
+        arrTextFields.forEach{ (textField) in
+            textField.backgroundColor = colour
+        }
     }
 }
 
