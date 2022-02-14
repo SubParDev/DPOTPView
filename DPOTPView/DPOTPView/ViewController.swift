@@ -86,5 +86,8 @@ extension ViewController : DPOTPViewDelegate {
     func dpOTPViewResignFirstResponder() {
         
     }
+    func dpOTPViewWillAddText(_ text: String, at position: Int) {
+        print("willAddText:- " + text + " at:- \(position)")
+    }
 }
 

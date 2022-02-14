@@ -295,8 +295,9 @@ extension DPOTPView : UITextFieldDelegate , OTPBackTextFieldDelegate {
     }
     
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        dpOTPViewDelegate?.dpOTPViewWillAddText(text ?? "", at: textField.tag/1000 - 1)
         if string.trimmingCharacters(in: CharacterSet.whitespaces).count != 0 {
+            print(string)
+            dpOTPViewDelegate?.dpOTPViewWillAddText(string ?? "", at: textField.tag/1000 - 1)
             textField.text = string
             if textField.tag < count*1000 {
                 let next = textField.superview?.viewWithTag((textField.tag/1000 + 1)*1000)
