@@ -8,10 +8,11 @@
 
 import UIKit
 
-public protocol DPOTPViewDelegate {
-    func dpOTPViewWillAddText(_ text: String, at position:Int)
-    func dpOTPViewAddText(_ text:String , at position:Int)
-    func dpOTPViewRemoveText(_ text:String , at position:Int)
+public protocol DPOTPViewDelegate: AnyObject {
+    func dpOTPViewWillAddText(_ text: String, at position:Int, in dpOTPView: DPOTPView)
+    func dpOTPViewAddText(_ text:String , at position:Int, in dpOTPView: DPOTPView)
+    func dpOTPViewRemoveText(_ text:String , at position:Int, in dpOTPView: DPOTPView)
+    func dpOTPViewDidBackspaceEmptyView()
     func dpOTPViewChangePositionAt(_ position:Int)
     func dpOTPViewBecomeFirstResponder()
     func dpOTPViewResignFirstResponder()
@@ -120,6 +121,7 @@ public protocol DPOTPViewDelegate {
             arrTextFields.forEach { str.append($0.text ?? "") }
             return str
         } set {
+            textToSet = newValue
             arrTextFields.forEach { $0.text = nil }
             for i in 0 ..< arrTextFields.count {
                 if i < (newValue?.count ?? 0) {
@@ -131,6 +133,7 @@ public protocol DPOTPViewDelegate {
         }
     }
     
+    fileprivate var textToSet: String?
     fileprivate var arrTextFields : [OTPBackTextField] = []
     fileprivate var isLoaded = false
     /** Override coder init, for IB/XIB compatibility */
@@ -229,6 +232,7 @@ public protocol DPOTPViewDelegate {
                 self.addSubview(tapView)
             }
             isLoaded = true
+            text = textToSet
         }
     }
     
@@ -260,6 +264,7 @@ public protocol DPOTPViewDelegate {
         } else {
             _ = arrTextFields.first?.becomeFirstResponder()
         }
+        
         dpOTPViewDelegate?.dpOTPViewBecomeFirstResponder()
         return super.becomeFirstResponder()
     }
@@ -271,6 +276,16 @@ public protocol DPOTPViewDelegate {
         }
         dpOTPViewDelegate?.dpOTPViewResignFirstResponder()
         return super.resignFirstResponder()
+    }
+    
+    open func isFirstResponder() -> Bool {
+        var isFirstResponder = false
+        arrTextFields.forEach { (textField) in
+            if textField.isFirstResponder {
+                isFirstResponder = true
+            }
+        }
+        return isFirstResponder
     }
     
     @objc func handleTap(_ sender: UITapGestureRecognizer? = nil) {
@@ -296,6 +311,12 @@ public protocol DPOTPViewDelegate {
             }
         }
     }
+    
+    open func setTextFieldTextColour(colour: UIColor) {
+        arrTextFields.forEach { (textField) in
+            textField.textColor = colour
+        }
+    }
 }
 
 extension DPOTPView : UITextFieldDelegate , OTPBackTextFieldDelegate {
@@ -306,7 +327,7 @@ extension DPOTPView : UITextFieldDelegate , OTPBackTextFieldDelegate {
     
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if string.trimmingCharacters(in: CharacterSet.whitespaces).count != 0 {
-            dpOTPViewDelegate?.dpOTPViewWillAddText(string, at: textField.tag/1000 - 1)
+            dpOTPViewDelegate?.dpOTPViewWillAddText(string, at: textField.tag/1000 - 1, in: self)
             textField.text = string
             if textField.tag < count*1000 {
                 let next = textField.superview?.viewWithTag((textField.tag/1000 + 1)*1000)
@@ -316,9 +337,10 @@ extension DPOTPView : UITextFieldDelegate , OTPBackTextFieldDelegate {
             }
         } else if string.count == 0 { // is backspace
             textField.text = ""
-            dpOTPViewDelegate?.dpOTPViewRemoveText(string ?? "", at: textField.tag/1000-1)
+            dpOTPViewDelegate?.dpOTPViewRemoveText(string ?? "", at: textField.tag/1000-1, in: self)
         }
-        dpOTPViewDelegate?.dpOTPViewAddText(text ?? "", at: textField.tag/1000 - 1)
+
+        dpOTPViewDelegate?.dpOTPViewAddText(text ?? "", at: textField.tag/1000 - 1, in: self)
         return false
     }
     
@@ -326,7 +348,9 @@ extension DPOTPView : UITextFieldDelegate , OTPBackTextFieldDelegate {
         if textField.tag > 1000 , let next = textField.superview?.viewWithTag((textField.tag/1000 - 1)*1000) as? UITextField {
             next.text = ""
             next.becomeFirstResponder()
-            dpOTPViewDelegate?.dpOTPViewRemoveText(text ?? "", at: next.tag/1000 - 1)
+            dpOTPViewDelegate?.dpOTPViewRemoveText(text ?? "", at: next.tag/1000 - 1, in: self)
+        } else {
+            dpOTPViewDelegate?.dpOTPViewDidBackspaceEmptyView()
         }
     }
 }

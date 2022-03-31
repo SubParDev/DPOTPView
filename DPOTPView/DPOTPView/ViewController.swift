@@ -27,7 +27,7 @@ class ViewController: UIViewController {
             txtOTPView.count = 5
             txtOTPView.spacing = 10
             txtOTPView.fontTextField = UIFont(name: "HelveticaNeue-Bold", size: CGFloat(25.0))!
-            txtOTPView.dismissOnLastEntry = true
+            //txtOTPView.dismissOnLastEntry = true
             txtOTPView.borderColorTextField = .black
             txtOTPView.selectedBorderColorTextField = .blue
             txtOTPView.borderWidthTextField = 2
@@ -86,6 +86,7 @@ extension ViewController : DPOTPViewDelegate {
     func dpOTPViewResignFirstResponder() {
         
     }
+    
     func dpOTPViewWillAddText(_ text: String, at position: Int) {
         print("willAddText:- " + text + " at:- \(position)")
     }
